@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 import uvicorn
+import time
+from schemas.auth import LoginResult
 
 
 app = FastAPI(debug=True)
@@ -10,8 +12,9 @@ async def index():
 
 
 @app.post('/login')
-async def login():
-    return True
+async def login() -> LoginResult:
+    # time.sleep(2)
+    return LoginResult(successful=True, login='test')
 
 
 if __name__ == '__main__':
