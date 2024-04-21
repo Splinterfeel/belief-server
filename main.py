@@ -9,7 +9,7 @@ async def index():
     return 'ok'
 
 
-@app.post('login')
+@app.post('/login')
 async def login():
     return True
 
