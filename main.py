@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 import uvicorn
-import time
-from schemas.auth import LoginResult
+from modules.common.schemas import LoginResult
 
 
 app = FastAPI(debug=True)
+
 
 @app.get('/')
 async def index():

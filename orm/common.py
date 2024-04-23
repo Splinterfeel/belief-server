@@ -11,4 +11,4 @@ class User(Base):
     login: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     created: Mapped[datetime.date] = mapped_column(Date, nullable=False, server_default=func.now())
     password: Mapped[str] = mapped_column(String(400))
-    cookie: Mapped[str] = mapped_column(String(400))
+    cookie: Mapped[str] = mapped_column(String(400), nullable=True)
