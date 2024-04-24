@@ -1,20 +1,15 @@
 from fastapi import FastAPI
 import uvicorn
-from modules.common.schemas import LoginResult
+import modules.common.routes
 
 
 app = FastAPI(debug=True)
+app.include_router(modules.common.routes.router)
 
 
 @app.get('/')
 async def index():
     return 'ok'
-
-
-@app.post('/login')
-async def login() -> LoginResult:
-    # time.sleep(2)
-    return LoginResult(successful=True, login='test')
 
 
 if __name__ == '__main__':
