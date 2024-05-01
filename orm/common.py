@@ -12,5 +12,5 @@ class User(Base):
     created: Mapped[datetime.date] = mapped_column(Date, nullable=False, server_default=func.now())
     password: Mapped[str] = mapped_column(String(400))
     cookie: Mapped[str] = mapped_column(String(400), nullable=True)
-    strongholds: Mapped["stronghold.Stronghold"] = relationship(back_populates='user')
+    strongholds: Mapped["stronghold.Stronghold"] = relationship('orm.stronghold.Stronghold', back_populates='user')
     money: Mapped[int] = mapped_column(BigInteger, server_default='100', nullable=False)

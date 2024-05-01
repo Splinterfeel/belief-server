@@ -9,6 +9,7 @@ from alembic import context
 from orm import Base
 from orm.common import User  # noqa
 from orm.stronghold import Stronghold  # noqa
+from orm.region import Chunk  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
