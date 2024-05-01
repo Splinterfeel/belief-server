@@ -40,6 +40,7 @@ def auth_user(user: schemas.User) -> schemas.AuthResult:
             User.login == user.login, User.password == password_hash).one_or_none()
         if db_user:
             cookie = f"{db_user.login}_{uuid.uuid4()}"
+            print('set cookie', cookie)
             db_user.cookie = cookie
             session.commit()
             return schemas.AuthResult(

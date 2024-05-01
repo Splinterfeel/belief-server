@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 import uvicorn
-import modules.common.routes
 from fastapi.middleware.cors import CORSMiddleware
+import modules.common.routes
+import modules.stronghold.routes
 
 origins = [
     "http://localhost:9000",
@@ -17,6 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(modules.common.routes.router)
+app.include_router(modules.stronghold.routes.router)
 
 
 @app.get('/')
