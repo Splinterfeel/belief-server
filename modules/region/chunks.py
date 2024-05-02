@@ -1,7 +1,8 @@
 from sqlalchemy import select, func
 from orm import Session
 from orm.region import Chunk
-
+from itertools import cycle
+from PIL import Image, ImageDraw
 
 CHUNK_SIZE = 10
 
@@ -65,5 +66,49 @@ def generate_new_chunks():
 
 
 # подготовка на случай запуска на пустой БД
-init_chunks()
+# init_chunks()
 # generate_new_chunks()
+def create_chunks_image():
+    colormap = (
+        "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
+        "bisque", "black", "blanchedalmond", "blue", "blueviolet", "brown",
+        "burlywood", "cadetblue", "chartreuse", "chocolate", "coral", "cornflowerblue",
+        "cornsilk", "crimson", "cyan", "darkblue", "darkcyan", "darkgoldenrod", "darkgray",
+        "darkgrey", "darkgreen", "darkkhaki", "darkmagenta", "darkolivegreen", "darkorange",
+        "darkorchid", "darkred", "darksalmon", "darkseagreen", "darkslateblue", "darkslategray", "darkslategrey",
+        "darkturquoise", "darkviolet", "deeppink", "deepskyblue", "dimgray", "dimgrey", "dodgerblue", "firebrick",
+        "floralwhite", "forestgreen", "fuchsia", "gainsboro", "ghostwhite", "gold", "goldenrod", "gray", "grey",
+        "green", "greenyellow", "honeydew", "hotpink", "indianred", "indigo", "ivory", "khaki", "lavender",
+        "lavenderblush", "lawngreen", "lemonchiffon", "lightblue", "lightcoral", "lightcyan", "lightgoldenrodyellow",
+        "lightgreen", "lightgray", "lightgrey", "lightpink", "lightsalmon", "lightseagreen", "lightskyblue",
+        "lightslategray", "lightslategrey", "lightsteelblue", "lightyellow", "lime", "limegreen", "linen", "magenta",
+        "maroon", "mediumaquamarine", "mediumblue", "mediumorchid", "mediumpurple", "mediumseagreen", "mediumslateblue",
+        "mediumspringgreen", "mediumturquoise", "mediumvioletred", "midnightblue", "mintcream", "mistyrose", "moccasin",
+        "navajowhite", "navy", "oldlace", "olive", "olivedrab", "orange", "orangered", "orchid", "palegoldenrod",
+        "palegreen", "paleturquoise", "palevioletred", "papayawhip", "peachpuff", "peru", "pink", "plum", "powderblue",
+        "purple", "rebeccapurple", "red", "rosybrown", "royalblue", "saddlebrown", "salmon", "sandybrown", "seagreen",
+        "seashell", "sienna", "silver", "skyblue", "slateblue", "slategray", "slategrey", "snow", "springgreen",
+        "steelblue", "tan", "teal", "thistle", "tomato", "turquoise", "violet", "wheat", "white", "whitesmoke",
+        "yellow", "yellowgreen")
+    get_color = cycle(colormap)
+    with Session() as session:
+        x_offset = abs(session.execute(select(func.min(Chunk.x_start))).scalar())
+        y_offset = abs(session.execute(select(func.min(Chunk.y_start))).scalar())
+        max_X = session.execute(select(func.max(Chunk.x_end))).scalar()
+        max_Y = session.execute(select(func.max(Chunk.y_end))).scalar()
+        chunks = session.query(Chunk).all()
+    width = max_X + x_offset
+    height = max_Y + y_offset
+    img = Image.new(mode="RGB", size=(width, height), color=(209, 123, 193))
+    draw = ImageDraw.Draw(img)
+    for chunk in chunks:
+        draw.rectangle((
+            (chunk.x_start+x_offset, chunk.y_start+y_offset),
+            (chunk.x_end+x_offset, chunk.y_end+y_offset)), fill=next(get_color))
+        draw.text((chunk.x_start+x_offset, chunk.y_start+y_offset), str(chunk.id))
+    img.show()
+
+
+# init_chunks()
+# generate_new_chunks()
+# create_chunks_image()
