@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-import modules.common.routes
-import modules.stronghold.routes
+import modules.common.config
+modules.common.config.init()
+import modules.common.routes  # noqa
+import modules.stronghold.routes  # noqa
 
 origins = [
     "http://localhost:9000",

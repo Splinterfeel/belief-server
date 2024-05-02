@@ -4,6 +4,7 @@ from orm import Session
 from orm.common import User
 from sqlalchemy import exc
 from modules.common import schemas
+from modules.stronghold.main import create_initial_user_stronghold
 
 
 def hash(value: str) -> str:
@@ -20,6 +21,7 @@ def add_user(user: schemas.User) -> bool:
             session.commit()
         except exc.IntegrityError:
             return False  # login exists
+        create_initial_user_stronghold(new_user)
         return True
 
 
