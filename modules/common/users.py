@@ -1,7 +1,7 @@
 import hashlib
 import uuid
 from orm import Session
-from orm.common import User
+from orm.common import User, Resource
 from sqlalchemy import exc
 from modules.common import schemas
 from modules.stronghold.main import create_initial_user_stronghold
@@ -21,8 +21,16 @@ def add_user(user: schemas.User) -> bool:
             session.commit()
         except exc.IntegrityError:
             return False  # login exists
+        create_initial_user_resources(new_user.id)
         create_initial_user_stronghold(new_user)
         return True
+
+
+def create_initial_user_resources(user_id: int) -> None:
+    with Session() as session:
+        resources = Resource(user_id=user_id)
+        session.add(resources)
+        session.commit()
 
 
 def check_cookie(cookie: str) -> bool:

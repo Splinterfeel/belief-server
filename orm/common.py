@@ -1,7 +1,19 @@
 import datetime
-from sqlalchemy import BigInteger, String, Date, func, Integer
+from sqlalchemy import BigInteger, String, Date, func, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from orm import Base, stronghold
+
+
+class Resource(Base):
+    __tablename__ = 'resource'
+    __table_args__ = {'schema': 'common'}
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('common.user.id'), unique=True, nullable=False)
+    gold: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='100')
+    materials: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='1000')
+    food: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='1000')
+    population: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='1000')
+    user: Mapped["User"] = relationship(back_populates='resources')
 
 
 class User(Base):
@@ -13,7 +25,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(400))
     cookie: Mapped[str] = mapped_column(String(400), nullable=True)
     strongholds: Mapped["stronghold.Stronghold"] = relationship('orm.stronghold.Stronghold', back_populates='user')
-    money: Mapped[int] = mapped_column(BigInteger, server_default='100', nullable=False)
+    resources: Mapped["Resource"] = relationship(back_populates='user')
 
 
 class Config(Base):

@@ -7,8 +7,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from orm import Base
-from orm.common import User  # noqa
-from orm.common import Config  # noqa
+from orm.common import User, Config, Resource  # noqa
 from orm.stronghold import Stronghold  # noqa
 from orm.region import Chunk  # noqa
 
