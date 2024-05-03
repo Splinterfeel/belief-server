@@ -15,10 +15,10 @@ def get_stronghold(stronghold_id: int) -> schemas.StrongholdFullDTO:
     stronghold = schemas.StrongholdFullDTO.model_validate(stronghold_orm)
     # test data
     stronghold.buildings = [
-        None, None, None, None, buildings.BuildingType.RESIDENCE,
-        None, buildings.BuildingType.CASTLE, None, buildings.BuildingType.BARRACKS, None,
-        None, None, None, buildings.BuildingType.SHOOTING_RANGE, None,
-        None, buildings.BuildingType.CHURCH, None, None, None,
+        None, None, None, None, None,
+        None, None, None, None, None,
+        None, None, buildings.BuildingType.RESIDENCE, None, None,
+        None, None, None, None, None,
         None, None, None, None, None,
     ]
     return stronghold
