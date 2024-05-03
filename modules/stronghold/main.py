@@ -5,6 +5,21 @@ from orm.region import Chunk
 from orm.common import User
 from modules.region.chunks import generate_new_chunks
 from modules.common.config import MAX_STRONGHOLDS_PER_CHUNK
+from modules.stronghold import schemas
+
+
+def get_stronghold(stronghold_id: int) -> schemas.StrongholdDTO:
+    "Получить подробную инфу по крепости. Сюда позднее добавить всю инфу о постройках внутри нее"
+    with Session() as session:
+        stronghold = session.query(Stronghold).where(Stronghold.id == stronghold_id).one()
+    return schemas.StrongholdDTO.model_validate(stronghold)
+
+
+def get_user_strongholds(user_id: str) -> list[schemas.StrongholdDTO]:
+    "Получить список крепостей пользователя"
+    with Session() as session:
+        strongholds = session.query(Stronghold).where(Stronghold.user_id == user_id).all()
+    return [schemas.StrongholdDTO.model_validate(x) for x in strongholds]
 
 
 def create_initial_user_stronghold(user: User) -> None:
