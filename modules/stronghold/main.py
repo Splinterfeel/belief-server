@@ -1,26 +1,21 @@
 import random
 from orm import Session
-from orm.stronghold import Stronghold
+from orm.stronghold import Stronghold, Building
 from orm.region import Chunk
 from orm.common import User
+from sqlalchemy.orm import joinedload
 from modules.region.chunks import generate_new_chunks
-from modules.common.config import MAX_STRONGHOLDS_PER_CHUNK
-from modules.stronghold import schemas, buildings
+from modules.common.config import MAX_STRONGHOLDS_PER_CHUNK, CELLS_IN_STRONGHOLD
+from modules.stronghold import schemas
 
 
 def get_stronghold(stronghold_id: int) -> schemas.StrongholdFullDTO:
     "Получить подробную инфу по крепости. Сюда позднее добавить всю инфу о постройках внутри нее"
     with Session() as session:
-        stronghold_orm = session.query(Stronghold).where(Stronghold.id == stronghold_id).one()
+        stronghold_orm = session.query(
+            Stronghold).where(Stronghold.id == stronghold_id).options(
+                joinedload(Stronghold.buildings).joinedload(Building.building_type)).one()
     stronghold = schemas.StrongholdFullDTO.model_validate(stronghold_orm)
-    # test data
-    stronghold.buildings = [
-        None, None, None, None, None,
-        None, None, None, None, None,
-        None, None, buildings.BuildingType.RESIDENCE, None, None,
-        None, None, None, None, None,
-        None, None, None, None, None,
-    ]
     return stronghold
 
 
@@ -29,6 +24,16 @@ def get_user_strongholds(user_id: str) -> list[schemas.StrongholdDTO]:
     with Session() as session:
         strongholds = session.query(Stronghold).where(Stronghold.user_id == user_id).all()
     return [schemas.StrongholdDTO.model_validate(x) for x in strongholds]
+
+
+def create_stronghold_empty_building_cells(stronghold_id: int):
+    "Создать пустые ячейки в таблице Building для крепости"
+    with Session() as session:
+        empty_cells = []
+        for cell in range(CELLS_IN_STRONGHOLD):
+            empty_cells.append(Building(stronghold_id=stronghold_id, cell=cell, level=None))
+        session.add_all(empty_cells)
+        session.commit()
 
 
 def create_initial_user_stronghold(user: User) -> None:
@@ -63,3 +68,5 @@ def create_initial_user_stronghold(user: User) -> None:
             free_chunk.full = True
             session.flush()
             session.commit()
+        session.refresh(stronghold)
+        create_stronghold_empty_building_cells(stronghold.id)

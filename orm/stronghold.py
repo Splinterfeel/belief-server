@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 from sqlalchemy import BigInteger, CheckConstraint, String, Date, UniqueConstraint, func, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from orm import Base, common, region
@@ -17,7 +18,7 @@ class Stronghold(Base):
     y_coordinate: Mapped[int] = mapped_column(BigInteger, nullable=False)
     level: Mapped[int] = mapped_column(Integer, nullable=False, server_default='1')
     chunk: Mapped["region.Chunk"] = relationship('orm.region.Chunk', back_populates='strongholds')
-    buildings: Mapped["Building"] = relationship(back_populates='stronghold')
+    buildings: Mapped[List["Building"]] = relationship(back_populates='stronghold')
 
 
 class BuildingType(Base):
@@ -29,7 +30,7 @@ class BuildingType(Base):
     description: Mapped[str] = mapped_column(String(500), nullable=True)
     max_level: Mapped[int] = mapped_column(Integer, nullable=False, server_default='5')
     buildings: Mapped["Building"] = relationship(back_populates='building_type')
-    building_prices: Mapped["BuildingPrice"] = relationship(back_populates='building_type')
+    building_prices: Mapped[List["BuildingPrice"]] = relationship(back_populates='building_type')
 
 
 class Building(Base):
@@ -41,9 +42,9 @@ class Building(Base):
     )
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, nullable=False, unique=True)
     stronghold_id: Mapped[int] = mapped_column(ForeignKey('stronghold.stronghold.id'), nullable=False)
-    building_type_id: Mapped[int] = mapped_column(ForeignKey('stronghold.building_type.id'), nullable=False)
+    building_type_id: Mapped[int] = mapped_column(ForeignKey('stronghold.building_type.id'), nullable=True)
     cell: Mapped[int] = mapped_column(Integer, nullable=False)
-    level: Mapped[int] = mapped_column(Integer, nullable=False, server_default='1')
+    level: Mapped[int] = mapped_column(Integer, nullable=True, server_default='1')
     building_type: Mapped["BuildingType"] = relationship(back_populates='buildings')
     stronghold: Mapped["Stronghold"] = relationship(back_populates='buildings')
 
