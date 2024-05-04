@@ -21,3 +21,14 @@ class AuthResult(BaseModel):
     "Reponse for auth request"
     successful: bool
     user: AuthUser | None = None
+
+
+class UserResourcesDTO(BaseModel):
+    user_id: int
+    gold: int
+    materials: int
+    food: int
+    population: int
+
+    class Config:
+        from_attributes = True

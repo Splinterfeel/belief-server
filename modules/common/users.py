@@ -11,6 +11,13 @@ def hash(value: str) -> str:
     return hashlib.sha256(value.encode()).hexdigest()
 
 
+def get_user_resources(user_id: int) -> schemas.UserResourcesDTO:
+    with Session() as session:
+        return schemas.UserResourcesDTO.model_validate(
+            session.query(Resource).where(Resource.user_id == user_id).one()
+        )
+
+
 def add_user(user: schemas.User) -> bool:
     with Session() as session:
         new_user = User()

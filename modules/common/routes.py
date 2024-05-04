@@ -17,6 +17,11 @@ async def auth(user: schemas.User, response: Response) -> schemas.AuthResult:
     return result
 
 
+@router.get('/resources/')
+async def get_user_resources(user_id: int) -> schemas.UserResourcesDTO:
+    return users.get_user_resources(user_id)
+
+
 @router.post('/user')
 async def add_user(user: schemas.User) -> bool:
     return users.add_user(user)
