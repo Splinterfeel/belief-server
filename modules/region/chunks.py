@@ -1,13 +1,47 @@
-from sqlalchemy import select, func
+import random
+from sqlalchemy import select, func, text
 from orm import Session
 from orm.region import Chunk
+import orm.structure
+from modules.structure.main import StructureTypeID
 from itertools import cycle
 from PIL import Image, ImageDraw
-
+from modules.common import config
 CHUNK_SIZE = 10
 
 
-def init_chunks():
+def create_structures_in_chunk(chunk: Chunk):
+    "Сгенерировать структуры (поселения, шахты и т д) в чанке"
+    structures = []
+    used_coordinates = set()  # на момент начала генерации структур чанк должен быть пустой
+    types_to_generate = [
+        {'type': StructureTypeID.MINE.value, 'max_count': config.MAX_FARMLANDS_IN_CHUNK},
+        {'type': StructureTypeID.FARMLANDS.value, 'max_count': config.MAX_GOLDMINES_IN_CHUNK},
+        {'type': StructureTypeID.SETTLEMENT.value, 'max_count': config.MAX_MINES_IN_CHUNK},
+        {'type': StructureTypeID.GOLDEN_MINE.value, 'max_count': config.MAX_SETTLEMENTS_IN_CHUNK},
+    ]
+    for structure_type in types_to_generate:
+        for _ in range(structure_type['max_count']):
+            generated = False
+            while not generated:
+                x_coordinate = random.randint(chunk.x_start, chunk.x_end)
+                y_coordinate = random.randint(chunk.y_start, chunk.y_end)
+                if (x_coordinate, y_coordinate,) in used_coordinates:
+                    continue
+                used_coordinates.add((x_coordinate, y_coordinate,))
+                generated = True
+            structure = orm.structure.Structure(
+                chunk_id=chunk.id,
+                structure_type_id=structure_type['type'],
+                x_coordinate=x_coordinate, y_coordinate=y_coordinate
+            )
+            structures.append(structure)
+    with Session() as session:
+        session.add_all(structures)
+        session.commit()
+
+
+def init_chunks() -> None:
     "Проверить, если начального чанка нет - то создать его"
     with Session() as session:
         any_chunk_exists = session.query(Chunk).limit(1).one_or_none()
@@ -17,20 +51,19 @@ def init_chunks():
             session.add(initial_chunk)
             session.flush()
             session.commit()
-            print('created initial chunk')
+            session.refresh(initial_chunk)
+    create_structures_in_chunk(initial_chunk)
+    generate_new_chunks()
+    print('created initial chunkset (3x3)')
 
 
-def generate_new_chunks():
+def generate_new_chunks() -> None:
     "Расширить чанки во все стороны от существующих"
     with Session() as session:
         min_X = session.execute(select(func.min(Chunk.x_start))).scalar()
-        print(f"{min_X=}")
         min_Y = session.execute(select(func.min(Chunk.y_start))).scalar()
-        print(f"{min_Y=}")
         max_X = session.execute(select(func.max(Chunk.x_end))).scalar()
-        print(f"{max_X=}")
         max_Y = session.execute(select(func.max(Chunk.y_end))).scalar()
-        print(f"{max_Y=}")
         new_chunks = []
         # добавляем чанки сверху и снизу
         x_start = min_X - CHUNK_SIZE
@@ -57,17 +90,14 @@ def generate_new_chunks():
             new_chunks.extend([chunk_1, chunk_2])
             y_start2 += CHUNK_SIZE
 
-        for chunk in new_chunks:
-            print(chunk)
-        print(len(new_chunks))
         session.add_all(new_chunks)
         session.flush()
         session.commit()
+        for chunk in new_chunks:
+            session.refresh(chunk)
+            create_structures_in_chunk(chunk)
 
 
-# подготовка на случай запуска на пустой БД
-# init_chunks()
-# generate_new_chunks()
 def create_chunks_image():
     colormap = (
         "aliceblue", "antiquewhite", "aqua", "aquamarine", "azure", "beige",
@@ -109,6 +139,17 @@ def create_chunks_image():
     img.show()
 
 
-# init_chunks()
-# generate_new_chunks()
-# create_chunks_image()
+def clear_all_gamedata():
+    "Подготовка на случай запуска на пустой БД"
+    with Session() as session:
+        session.execute(text('delete from structure.structure;'))
+        session.execute(text('delete from stronghold.building;'))
+        session.execute(text('delete from stronghold.stronghold;'))
+        session.execute(text('delete from common.resource;'))
+        session.execute(text('delete from common.user;'))
+        session.execute(text('delete from region.chunk;'))
+        session.commit()
+    init_chunks()
+
+
+# clear_all_gamedata()
