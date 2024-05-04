@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 from sqlalchemy import BigInteger, String, Date, func, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from orm import Base, stronghold
@@ -24,8 +25,8 @@ class User(Base):
     created: Mapped[datetime.date] = mapped_column(Date, nullable=False, server_default=func.now())
     password: Mapped[str] = mapped_column(String(400))
     cookie: Mapped[str] = mapped_column(String(400), nullable=True)
-    strongholds: Mapped["stronghold.Stronghold"] = relationship('orm.stronghold.Stronghold', back_populates='user')
-    resources: Mapped["Resource"] = relationship(back_populates='user')
+    strongholds: Mapped[List["stronghold.Stronghold"]] = relationship('orm.stronghold.Stronghold', back_populates='user')
+    resources: Mapped[List["Resource"]] = relationship(back_populates='user')
 
 
 class Config(Base):
