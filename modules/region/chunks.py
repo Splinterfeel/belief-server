@@ -145,6 +145,7 @@ def clear_all_gamedata():
         session.execute(text('delete from structure.structure;'))
         session.execute(text('delete from stronghold.building;'))
         session.execute(text('delete from stronghold.stronghold;'))
+        session.execute(text('delete from common.resource_gain;'))
         session.execute(text('delete from common.resource;'))
         session.execute(text('delete from common.user;'))
         session.execute(text('delete from region.chunk;'))

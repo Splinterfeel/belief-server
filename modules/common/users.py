@@ -1,7 +1,7 @@
 import hashlib
 import uuid
 from orm import Session
-from orm.common import User, Resource
+from orm.common import User, Resource, ResourceGain
 from sqlalchemy import exc
 from modules.common import schemas
 from modules.stronghold.main import create_initial_user_stronghold
@@ -36,7 +36,9 @@ def add_user(user: schemas.User) -> bool:
 def create_initial_user_resources(user_id: int) -> None:
     with Session() as session:
         resources = Resource(user_id=user_id)
+        resources_gain = ResourceGain(user_id=user_id)
         session.add(resources)
+        session.add(resources_gain)
         session.commit()
 
 

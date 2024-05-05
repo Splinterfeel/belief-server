@@ -2,9 +2,12 @@ from fastapi import FastAPI
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 import modules.common.config
+import mq.belief_producer
+import mq
 modules.common.config.init()
 import modules.common.routes  # noqa
 import modules.stronghold.routes  # noqa
+
 
 origins = [
     "http://localhost:9000",
@@ -29,4 +32,5 @@ async def index():
 
 
 if __name__ == '__main__':
+    mq.belief_producer.run()
     uvicorn.run(app='main:app', host='127.0.0.1', port=3000, reload=True)

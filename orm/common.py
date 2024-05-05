@@ -14,7 +14,19 @@ class Resource(Base):
     materials: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='1000')
     food: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='1000')
     population: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='1000')
-    user: Mapped["User"] = relationship(back_populates='resources')
+    user: Mapped["User"] = relationship(back_populates='resource')
+
+
+class ResourceGain(Base):
+    __tablename__ = 'resource_gain'
+    __table_args__ = {'schema': 'common'}
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('common.user.id'), unique=True, nullable=False)
+    gold: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='10')
+    materials: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='50')
+    food: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='50')
+    population: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='50')
+    user: Mapped["User"] = relationship(back_populates='resource_gain')
 
 
 class User(Base):
@@ -26,7 +38,8 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(400))
     cookie: Mapped[str] = mapped_column(String(400), nullable=True)
     strongholds: Mapped[List["stronghold.Stronghold"]] = relationship('orm.stronghold.Stronghold', back_populates='user')
-    resources: Mapped[List["Resource"]] = relationship(back_populates='user')
+    resource: Mapped["Resource"] = relationship(back_populates='user')
+    resource_gain: Mapped["ResourceGain"] = relationship(back_populates='user')
 
 
 class Config(Base):
