@@ -19,4 +19,5 @@ class BuildingQueue(Base):
     level: Mapped[int] = mapped_column(Integer, nullable=True, server_default='1')
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     scheduled_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False)
-    done: Mapped[bool] = mapped_column(Boolean)
+    done: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default='false')
+    queued: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default='false')

@@ -21,7 +21,6 @@ class BuildingType(Enum):
 
 def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
     with Session() as session:
-        print(building)
         # check if stronghold belongs to player
         stronghold_belongs_to_player = session.query(Stronghold).where(
             Stronghold.id == building.stronghold_id).where(Stronghold.user_id == building.user_id).one_or_none()
