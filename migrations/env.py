@@ -11,6 +11,7 @@ from orm.common import User, Config, Resource, ResourceGain  # noqa
 from orm.stronghold import Stronghold, Building, BuildingType, BuildingPrice  # noqa
 from orm.region import Chunk  # noqa
 from orm.structure import StructureType, Structure  # noqa
+from orm.queued import BuildingQueue  # noqa
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

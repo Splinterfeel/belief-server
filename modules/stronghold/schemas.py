@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import datetime
 
 
@@ -19,10 +19,26 @@ class BuildingDTO(BaseModel):
     building_type_id: int | None
     cell: int
     level: int | None
-    building_type: BuildingTypeDTO | None
+    building_type: BuildingTypeDTO | None = None
 
     class Config:
         from_attributes = True
+
+
+class BuildingQueueDTO(BaseModel):
+    user_id: int
+    stronghold_id: int
+    building_type_id: int
+    cell: int
+    level: int | None
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    scheduled_at: datetime.datetime | None = None
+
+
+class BuildingQueueResult(BaseModel):
+    'Ответ на запрос добавления постройки в очередь'
+    successful: bool
+    description: str = None
 
 
 class StrongholdDTO(BaseModel):

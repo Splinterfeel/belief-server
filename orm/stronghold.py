@@ -62,5 +62,6 @@ class BuildingPrice(Base):
     materials: Mapped[int] = mapped_column(Integer, nullable=False, server_default='0')
     food: Mapped[int] = mapped_column(Integer, nullable=False, server_default='0')
     population: Mapped[int] = mapped_column(Integer, nullable=False, server_default='0')
+    gold: Mapped[int] = mapped_column(Integer, nullable=False, server_default='0')
     time: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default='1')
     building_type: Mapped["BuildingType"] = relationship(back_populates='building_prices')
