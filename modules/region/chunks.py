@@ -15,10 +15,10 @@ def create_structures_in_chunk(chunk: Chunk):
     structures = []
     used_coordinates = set()  # на момент начала генерации структур чанк должен быть пустой
     types_to_generate = [
-        {'type': StructureTypeID.MINE.value, 'max_count': config.MAX_FARMLANDS_IN_CHUNK},
-        {'type': StructureTypeID.FARMLANDS.value, 'max_count': config.MAX_GOLDMINES_IN_CHUNK},
-        {'type': StructureTypeID.SETTLEMENT.value, 'max_count': config.MAX_MINES_IN_CHUNK},
-        {'type': StructureTypeID.GOLDEN_MINE.value, 'max_count': config.MAX_SETTLEMENTS_IN_CHUNK},
+        {'type': StructureTypeID.MINE.value, 'max_count': config.MAX_MINES_IN_CHUNK},
+        {'type': StructureTypeID.FARMLANDS.value, 'max_count': config.MAX_FARMLANDS_IN_CHUNK},
+        {'type': StructureTypeID.SETTLEMENT.value, 'max_count': config.MAX_SETTLEMENTS_IN_CHUNK},
+        {'type': StructureTypeID.GOLDEN_MINE.value, 'max_count': config.MAX_GOLDMINES_IN_CHUNK},
     ]
     for structure_type in types_to_generate:
         for _ in range(structure_type['max_count']):
