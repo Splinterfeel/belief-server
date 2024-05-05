@@ -142,13 +142,14 @@ def create_chunks_image():
 def clear_all_gamedata():
     "Подготовка на случай запуска на пустой БД"
     with Session() as session:
-        session.execute(text('delete from structure.structure;'))
-        session.execute(text('delete from stronghold.building;'))
-        session.execute(text('delete from stronghold.stronghold;'))
-        session.execute(text('delete from common.resource_gain;'))
-        session.execute(text('delete from common.resource;'))
-        session.execute(text('delete from common.user;'))
-        session.execute(text('delete from region.chunk;'))
+        session.execute(text('truncate queued.building;'))
+        session.execute(text('truncate structure.structure;'))
+        session.execute(text('truncate stronghold.building;'))
+        session.execute(text('truncate stronghold.stronghold cascade;'))
+        session.execute(text('truncate common.resource_gain;'))
+        session.execute(text('truncate common.resource;'))
+        session.execute(text('truncate common.user cascade;'))
+        session.execute(text('truncate region.chunk cascade;'))
         session.commit()
     init_chunks()
 
