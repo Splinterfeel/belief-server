@@ -1,10 +1,13 @@
 import datetime
 from enum import Enum
+
+from sqlalchemy import text
 from modules.stronghold.schemas import BuildingQueueDTO, BuildingQueueResult
 from orm import Session
 from orm.common import Resource
 from orm.stronghold import BuildingPrice, Stronghold, Building
 from orm.queued import BuildingQueue
+from mq.schemas import BuildingTaskDTO
 
 
 class BuildingType(Enum):
@@ -19,7 +22,27 @@ class BuildingType(Enum):
     HOSPITAL = 'hospital'  # дает прирост населения
 
 
+def build(building: BuildingTaskDTO) -> None:
+    "Построить здание по заданию из очереди"
+    with Session() as session:
+        query = session.query(Building).where(
+                Building.stronghold_id == building.stronghold_id,
+                Building.cell == building.cell)
+        if building.upgrade:
+            # апгрейд здания
+            query = query.where(Building.building_type_id == building.building_type_id)
+        existing_building = query.one()
+        existing_building.building_type_id = building.building_type_id
+        existing_building.level = building.level
+        session.add(existing_building)
+        session.execute(text(
+            'UPDATE queued.building SET done = true WHERE id = :id'),
+            {'id': building.id})
+        session.commit()
+
+
 def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
+    "Создать задание на постройку здания"
     with Session() as session:
         # check if stronghold belongs to player
         stronghold_belongs_to_player = session.query(Stronghold).where(
@@ -30,8 +53,11 @@ def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
         cell_in_stronghold = session.query(Building).where(
             Building.stronghold_id == building.stronghold_id).where(
                 Building.cell == building.cell).one()
-        if cell_in_stronghold.building_type_id and cell_in_stronghold.building_type_id != building.building_type_id:
-            return BuildingQueueResult(successful=False, description='Ячейка в крепости занята зданеим другого типа')
+        if cell_in_stronghold.building_type_id:
+            if not building.is_upgrade:
+                return BuildingQueueResult(successful=False, description='Ячейка занята, нельзя построить новое здание')
+            if cell_in_stronghold.building_type_id != building.building_type_id:
+                return BuildingQueueResult(successful=False, description='Ячейка занята зданеим другого типа')
         cell_in_building_queue = session.query(BuildingQueue).where(
             BuildingQueue.stronghold_id == building.stronghold_id).where(
                 BuildingQueue.cell == building.cell).one_or_none()

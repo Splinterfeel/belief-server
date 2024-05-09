@@ -31,6 +31,7 @@ class BuildingQueueDTO(BaseModel):
     building_type_id: int
     cell: int
     level: int | None
+    is_upgrade: bool
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     scheduled_at: datetime.datetime | None = None
 

@@ -21,3 +21,4 @@ class BuildingQueue(Base):
     scheduled_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False)
     done: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default='false')
     queued: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default='false')
+    upgrade: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default='false')
