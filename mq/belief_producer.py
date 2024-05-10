@@ -9,12 +9,6 @@ from modules.common.config import QUEUE_SEND_MINSECONDS, QUEUE_TICK_SECONDS
 MILLISECONDS = 1000
 
 
-connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-channel = connection.channel()
-channel.exchange_declare('belief_ex', 'x-delayed-message', durable=True, arguments={'x-delayed-type': 'direct'})
-channel.queue_declare(queue='belief', durable=True)
-
-
 def apply_delay_to_tasks(tasks: list[schemas.QueuedTask]) -> list[schemas.QueuedTask]:
     for task in tasks:
         now = datetime.datetime.now()
@@ -27,6 +21,10 @@ def apply_delay_to_tasks(tasks: list[schemas.QueuedTask]) -> list[schemas.Queued
 
 def send_tasks_to_mq(tasks: list[schemas.QueuedTask]) -> None:
     "Отправить задачи в очередь для исполнения"
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
+    channel.exchange_declare('belief_ex', 'x-delayed-message', durable=True, arguments={'x-delayed-type': 'direct'})
+    channel.queue_declare(queue='belief', durable=True)
     for task in tasks:
         channel.basic_publish(
             'belief_ex', routing_key='belief', body=task.model_dump_json(),

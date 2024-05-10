@@ -15,6 +15,11 @@ async def get_stronghold(
     return main.get_stronghold(id)
 
 
+@router.post('/building', tags=['Buildings'], description='Добавить задание на постройку здания в очредь')
+async def quque_building(building: schemas.BuildingQueueDTO) -> schemas.BuildingQueueResult:
+    return buildings.queue_building(building)
+
+
 @router.get('/building_types', tags=['Buildings'], description='Получить список типов зданий')
 async def get_building_types() -> list[schemas.BuildingTypeDTO]:
     return buildings.get_building_types()

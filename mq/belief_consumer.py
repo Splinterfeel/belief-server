@@ -10,14 +10,21 @@ channel = connection.channel()
 
 
 def read_queued_tasks(ch, method, properties, body):
-    task_model = schemas.QueuedTask.model_validate_json(body)
-    print(f" [x] Received {task_model.task_type}", datetime.datetime.now())
-    match task_model.task_type:
-        case schemas.TaskType.BUILD_A_BUILDING:
-            buildings.build(schemas.BuildingTaskDTO.model_validate_json(body))
-        case _:
-            msg = f'unknown task type! {task_model.task_type}'
-            raise ValueError(msg)
+    try:
+        task_model = schemas.QueuedTask.model_validate_json(body)
+    except:
+        print('error validating task', body.decode())
+    else:
+        print(f" [x] Received {task_model.task_type}", datetime.datetime.now())
+        match task_model.task_type:
+            case schemas.TaskType.BUILD_A_BUILDING:
+                try:
+                    buildings.build(schemas.BuildingTaskDTO.model_validate_json(body))
+                except:
+                    print('exception parsing task', body.decode())
+            case _:
+                msg = f'unknown task type! {task_model.task_type}'
+                print(msg)
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
