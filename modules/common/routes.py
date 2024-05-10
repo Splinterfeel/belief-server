@@ -1,12 +1,13 @@
-from typing import Annotated
-from fastapi import APIRouter, Response, Cookie
+from fastapi import APIRouter, Response, Request
 from modules.common import schemas, users
 
 router = APIRouter(prefix='/common', tags=['Users'])
 
 
-async def check_cookie(user_cookie: Annotated[str | None, Cookie()] = None):
-    return users.check_cookie(user_cookie)
+async def check_cookie(req: Request):
+    token = req.headers["Authorization"]
+    print(token)
+    return users.check_cookie(token)
 
 
 @router.post('/auth', description='Авторизация пользователя', tags=['Users'])
