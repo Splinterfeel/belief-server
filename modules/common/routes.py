@@ -2,14 +2,14 @@ from typing import Annotated
 from fastapi import APIRouter, Response, Cookie
 from modules.common import schemas, users
 
-router = APIRouter(prefix='/common')
+router = APIRouter(prefix='/common', tags=['Users'])
 
 
 async def check_cookie(user_cookie: Annotated[str | None, Cookie()] = None):
     return users.check_cookie(user_cookie)
 
 
-@router.post('/auth')
+@router.post('/auth', description='Авторизация пользователя', tags=['Users'])
 async def auth(user: schemas.User, response: Response) -> schemas.AuthResult:
     result: schemas.AuthResult = users.auth_user(user)
     if result.successful:
@@ -17,11 +17,11 @@ async def auth(user: schemas.User, response: Response) -> schemas.AuthResult:
     return result
 
 
-@router.get('/resources/')
+@router.get('/resources/', description='Получить количество ресурсов у игрока', tags=['Users'])
 async def get_user_resources(user_id: int) -> schemas.UserResourcesDTO:
     return users.get_user_resources(user_id)
 
 
-@router.post('/user')
+@router.post('/user', description='Регистрация пользователя', tags=['Users'])
 async def add_user(user: schemas.User) -> bool:
     return users.add_user(user)

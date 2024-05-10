@@ -2,10 +2,10 @@ import datetime
 from enum import Enum
 
 from sqlalchemy import text
-from modules.stronghold.schemas import BuildingQueueDTO, BuildingQueueResult
+from modules.stronghold.schemas import BuildingQueueDTO, BuildingQueueResult, BuildingTypeDTO
 from orm import Session
 from orm.common import Resource
-from orm.stronghold import BuildingPrice, Stronghold, Building
+from orm.stronghold import BuildingPrice, Stronghold, Building, BuildingType as BuildingTypeORM
 from orm.queued import BuildingQueue
 from mq.schemas import BuildingTaskDTO
 
@@ -92,3 +92,11 @@ def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
         session.add(building_queue)
         session.commit()
     return BuildingQueueResult(successful=True)
+
+
+def get_building_types() -> list[BuildingTypeDTO]:
+    global BUILDING_TYPES
+    if 'BUILDING_TYPES' not in globals():
+        with Session() as session:
+            BUILDING_TYPES = [BuildingTypeDTO.model_validate(t) for t in session.query(BuildingTypeORM).all()]
+    return BUILDING_TYPES
