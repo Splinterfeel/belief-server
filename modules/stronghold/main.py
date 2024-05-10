@@ -3,6 +3,7 @@ from orm import Session
 from orm.stronghold import Stronghold, Building
 from orm.region import Chunk
 from orm.common import User
+from orm.queued import BuildingQueue
 from sqlalchemy.orm import joinedload
 from modules.region.chunks import generate_new_chunks
 from modules.common.config import MAX_STRONGHOLDS_PER_CHUNK, CELLS_IN_STRONGHOLD
@@ -16,6 +17,16 @@ def get_stronghold(stronghold_id: int) -> schemas.StrongholdFullDTO:
             Stronghold).where(Stronghold.id == stronghold_id).options(
                 joinedload(Stronghold.buildings).joinedload(Building.building_type)).one()
     stronghold = schemas.StrongholdFullDTO.model_validate(stronghold_orm)
+    buildings_in_queue = session.query(BuildingQueue).where(
+        BuildingQueue.stronghold_id == stronghold_id,
+        BuildingQueue.done.is_not(True)).all()
+    if buildings_in_queue:
+        for building_in_queue in buildings_in_queue:
+            print(buildings_in_queue)
+            same_cell = next(x for x in stronghold.buildings if x.cell == building_in_queue.cell)
+            print(same_cell)
+            same_cell.queued_task = building_in_queue
+    stronghold.buildings = sorted(stronghold.buildings, key=lambda x: x.cell)
     return stronghold
 
 

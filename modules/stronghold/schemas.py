@@ -13,18 +13,6 @@ class BuildingTypeDTO(BaseModel):
         from_attributes = True
 
 
-class BuildingDTO(BaseModel):
-    id: int
-    stronghold_id: int
-    building_type_id: int | None
-    cell: int
-    level: int | None
-    building_type: BuildingTypeDTO | None = None
-
-    class Config:
-        from_attributes = True
-
-
 class BuildingQueueDTO(BaseModel):
     user_id: int
     stronghold_id: int
@@ -34,6 +22,19 @@ class BuildingQueueDTO(BaseModel):
     is_upgrade: bool
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     scheduled_at: datetime.datetime | None = None
+
+
+class BuildingDTO(BaseModel):
+    id: int
+    stronghold_id: int
+    building_type_id: int | None
+    cell: int
+    level: int | None
+    building_type: BuildingTypeDTO | None = None
+    queued_task: BuildingQueueDTO | None = None
+
+    class Config:
+        from_attributes = True
 
 
 class BuildingQueueResult(BaseModel):
