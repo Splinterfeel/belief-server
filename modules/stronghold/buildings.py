@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-
+from modules.stronghold import schemas
 from sqlalchemy import text
 from modules.stronghold.schemas import BuildingQueueDTO, BuildingQueueResult, BuildingTypeDTO
 from orm import Session
@@ -58,6 +58,9 @@ def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
                 return BuildingQueueResult(successful=False, description='Ячейка занята, нельзя построить новое здание')
             if cell_in_stronghold.building_type_id != building.building_type_id:
                 return BuildingQueueResult(successful=False, description='Ячейка занята зданеим другого типа')
+            if cell_in_stronghold.level <= building.level + 1:
+                return BuildingQueueResult(
+                    successful=False, description='Попытка построить здание выше на несколько уровней (>1)')
         cell_in_building_queue = session.query(BuildingQueue).where(
             BuildingQueue.stronghold_id == building.stronghold_id).where(
                 BuildingQueue.cell == building.cell).one_or_none()
@@ -92,6 +95,14 @@ def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
         session.add(building_queue)
         session.commit()
     return BuildingQueueResult(successful=True)
+
+
+def get_building_price(query: schemas.BuildingPriceQuery) -> schemas.BuildingPriceDTO:
+    "Получить данные о стоимости постройки или улучшения здания"
+    with Session() as session:
+        return session.query(BuildingPrice).where(
+            BuildingPrice.building_type_id == query.building_type_id,
+            BuildingPrice.level == query.level).one()
 
 
 def get_building_types() -> list[BuildingTypeDTO]:

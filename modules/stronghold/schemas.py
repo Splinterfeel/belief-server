@@ -2,6 +2,23 @@ from pydantic import BaseModel, Field
 import datetime
 
 
+class BuildingPriceQuery(BaseModel):
+    "Ззапрос цены на постройку / улучшение здания"
+    building_type_id: int
+    level: int
+
+
+class BuildingPriceDTO(BaseModel):
+    "Ответ цены на постройку / улучшение здания"
+    building_type_id: int
+    level: int
+    materials: int
+    food: int
+    population: int
+    gold: int
+    time: int  # в минутах
+
+
 class BuildingTypeDTO(BaseModel):
     id: int
     name: str
@@ -22,6 +39,7 @@ class BuildingQueueDTO(BaseModel):
     is_upgrade: bool
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     scheduled_at: datetime.datetime | None = None
+    building_type: BuildingTypeDTO | None = None
 
 
 class BuildingDTO(BaseModel):

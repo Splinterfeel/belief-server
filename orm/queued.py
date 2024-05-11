@@ -1,7 +1,7 @@
 import datetime
 from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, UniqueConstraint, func, ForeignKey, Integer
-from sqlalchemy.orm import Mapped, mapped_column
-from orm import Base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from orm import Base, stronghold
 
 
 class BuildingQueue(Base):
@@ -22,3 +22,5 @@ class BuildingQueue(Base):
     done: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default='false')
     queued: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default='false')
     upgrade: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default='false')
+    building_type: Mapped["stronghold.BuildingType"] = relationship('orm.stronghold.BuildingType',
+                                                                    back_populates='queued_buildings')

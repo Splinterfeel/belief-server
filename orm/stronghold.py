@@ -2,7 +2,7 @@ import datetime
 from typing import List
 from sqlalchemy import BigInteger, CheckConstraint, String, Date, UniqueConstraint, func, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from orm import Base, common, region
+from orm import Base, common, region, queued
 
 
 class Stronghold(Base):
@@ -31,6 +31,7 @@ class BuildingType(Base):
     max_level: Mapped[int] = mapped_column(Integer, nullable=False, server_default='5')
     buildings: Mapped["Building"] = relationship(back_populates='building_type')
     building_prices: Mapped[List["BuildingPrice"]] = relationship(back_populates='building_type')
+    queued_buildings: Mapped[List["queued.BuildingQueue"]] = relationship(back_populates='building_type')
 
 
 class Building(Base):

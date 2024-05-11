@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 
-__all__ = ['Session', 'Base']
+__all__ = ['Session', 'Base', 'queue']
 
 
 class Base(DeclarativeBase):

@@ -20,6 +20,12 @@ async def quque_building(building: schemas.BuildingQueueDTO) -> schemas.Building
     return buildings.queue_building(building)
 
 
+@router.get('/price', tags=['Buildings'], description='Получить инфу о стоимости и времени постройки')
+async def get_building_price_info(type: int, level: int) -> schemas.BuildingPriceDTO:
+    query = schemas.BuildingPriceQuery.model_validate({'building_type_id': type, 'level': level})
+    return buildings.get_building_price(query)
+
+
 @router.get('/building_types', tags=['Buildings'], description='Получить список типов зданий')
 async def get_building_types() -> list[schemas.BuildingTypeDTO]:
     return buildings.get_building_types()

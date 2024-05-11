@@ -17,14 +17,13 @@ def get_stronghold(stronghold_id: int) -> schemas.StrongholdFullDTO:
             Stronghold).where(Stronghold.id == stronghold_id).options(
                 joinedload(Stronghold.buildings).joinedload(Building.building_type)).one()
     stronghold = schemas.StrongholdFullDTO.model_validate(stronghold_orm)
-    buildings_in_queue = session.query(BuildingQueue).where(
+    buildings_in_queue = session.query(BuildingQueue).options(
+        joinedload(BuildingQueue.building_type)).where(
         BuildingQueue.stronghold_id == stronghold_id,
         BuildingQueue.done.is_not(True)).all()
     if buildings_in_queue:
         for building_in_queue in buildings_in_queue:
-            print(buildings_in_queue)
             same_cell = next(x for x in stronghold.buildings if x.cell == building_in_queue.cell)
-            print(same_cell)
             same_cell.queued_task = building_in_queue
     stronghold.buildings = sorted(stronghold.buildings, key=lambda x: x.cell)
     return stronghold
