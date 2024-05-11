@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, UniqueConstraint, func, ForeignKey, Integer
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, func, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from orm import Base, stronghold
 
@@ -9,7 +9,6 @@ class BuildingQueue(Base):
     __tablename__ = 'building'
     __table_args__ = (
         CheckConstraint('cell between 0 and 24', name='buildingqueue_stronghold_cell_0_to_24'),
-        UniqueConstraint('stronghold_id', 'cell', 'done', name='uq_buildingqueue_stronghold_cell'),
         {'schema': 'queued'}
     )
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, nullable=False, unique=True)

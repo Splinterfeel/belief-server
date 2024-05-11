@@ -18,10 +18,7 @@ def read_queued_tasks(ch, method, properties, body):
         print(f" [x] Received {task_model.task_type}", datetime.datetime.now())
         match task_model.task_type:
             case schemas.TaskType.BUILD_A_BUILDING:
-                try:
-                    buildings.build(schemas.BuildingTaskDTO.model_validate_json(body))
-                except:
-                    print('exception parsing task', body.decode())
+                buildings.build(schemas.BuildingTaskDTO.model_validate_json(body))
             case _:
                 msg = f'unknown task type! {task_model.task_type}'
                 print(msg)

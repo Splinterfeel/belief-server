@@ -58,9 +58,15 @@ def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
                 return BuildingQueueResult(successful=False, description='Ячейка занята, нельзя построить новое здание')
             if cell_in_stronghold.building_type_id != building.building_type_id:
                 return BuildingQueueResult(successful=False, description='Ячейка занята зданеим другого типа')
-            if cell_in_stronghold.level <= building.level + 1:
+            if cell_in_stronghold.level < building.level - 1:
                 return BuildingQueueResult(
                     successful=False, description='Попытка построить здание выше на несколько уровней (>1)')
+            # check if upgrade level not greater than max level
+            max_level = session.query(BuildingTypeORM.max_level).where(
+                BuildingTypeORM.id == building.building_type_id).scalar()
+            print(f"{max_level=}")
+            if building.level > max_level:
+                return BuildingQueueResult(successful=False, description='Попытка построить здание выше макс. уровня')
         # check if there is no other buildings of that type in stronghold
         same_types_in_stronghold = session.query(Building).where(
             Building.stronghold_id == building.stronghold_id,
@@ -70,8 +76,8 @@ def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
         if same_types_in_stronghold:
             return BuildingQueueResult(successful=False, description='Данная постройка уже есть в крепости')
         cell_in_building_queue = session.query(BuildingQueue).where(
-            BuildingQueue.stronghold_id == building.stronghold_id).where(
-                BuildingQueue.cell == building.cell).one_or_none()
+            BuildingQueue.stronghold_id == building.stronghold_id,
+            BuildingQueue.cell == building.cell, BuildingQueue.done.is_not(True)).one_or_none()
         if cell_in_building_queue:
             return BuildingQueueResult(successful=False, description='Ячейка уже задействована в очереди строительства')
         # get building price
@@ -96,7 +102,7 @@ def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
         building_queue = BuildingQueue(
             stronghold_id=building.stronghold_id,
             building_type_id=building.building_type_id,
-            cell=building.cell,
+            cell=building.cell, upgrade=building.is_upgrade,
             level=building.level,
             created_at=building.created_at,
             scheduled_at=building.scheduled_at, done=False)
