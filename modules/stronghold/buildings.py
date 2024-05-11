@@ -61,6 +61,14 @@ def queue_building(building: BuildingQueueDTO) -> BuildingQueueResult:
             if cell_in_stronghold.level <= building.level + 1:
                 return BuildingQueueResult(
                     successful=False, description='Попытка построить здание выше на несколько уровней (>1)')
+        # check if there is no other buildings of that type in stronghold
+        same_types_in_stronghold = session.query(Building).where(
+            Building.stronghold_id == building.stronghold_id,
+            Building.building_type_id == building.building_type_id,
+            Building.cell != building.cell
+        ).one_or_none()
+        if same_types_in_stronghold:
+            return BuildingQueueResult(successful=False, description='Данная постройка уже есть в крепости')
         cell_in_building_queue = session.query(BuildingQueue).where(
             BuildingQueue.stronghold_id == building.stronghold_id).where(
                 BuildingQueue.cell == building.cell).one_or_none()
